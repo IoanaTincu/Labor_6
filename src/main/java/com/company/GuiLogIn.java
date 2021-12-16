@@ -33,9 +33,11 @@ public class GuiLogIn extends Application implements EventHandler<ActionEvent> {
     TextField firstNameInput, lastNameInput;
 
     Parent mainParent;
-    public void setParent(Parent p){
-        this.mainParent = p;
+
+    public void setParent(Parent parent) {
+        this.mainParent = parent;
     }
+
     private final StudentController studentController;
     private final TeacherController teacherController;
 
@@ -159,16 +161,15 @@ public class GuiLogIn extends Application implements EventHandler<ActionEvent> {
                     alert.setContentText("You don't exist in the database!");
                     alert.showAndWait();
                 } else {
-                    System.out.println("You exist!");
                     GuiStudent guiStudent = new GuiStudent();
                     Parent parent = guiStudent.initialize();
                     guiStudent.setNames(firstName, lastName);
                     Stage stage = new Stage();
+                    stage.setTitle("Student Menu");
                     stage.setScene(new Scene(parent, 672, 672));
                     stage.show();
                 }
-            }
-            else {
+            } else {
                 try {
                     exist = teacherController.searchPerson(firstName, lastName);
                 } catch (SQLException | IOException | ClassNotFoundException e) {
@@ -188,7 +189,13 @@ public class GuiLogIn extends Application implements EventHandler<ActionEvent> {
                     alert.setContentText("You don't exist in the database!");
                     alert.showAndWait();
                 } else {
-                    System.out.println("You exist!");
+                    GuiTeacher guiTeacher = new GuiTeacher();
+                    Parent parent = guiTeacher.initialize();
+                    guiTeacher.setNames(firstName, lastName);
+                    Stage stage = new Stage();
+                    stage.setTitle("Teacher Menu");
+                    stage.setScene(new Scene(parent, 672, 672));
+                    stage.show();
                 }
             }
         }

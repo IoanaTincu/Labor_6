@@ -2,16 +2,13 @@ package com.company;
 
 import controller.CourseController;
 import controller.StudentController;
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import model.Course;
 import model.Student;
 import model.Teacher;
@@ -20,23 +17,23 @@ import repository.*;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public class GuiStudent extends Application {
+public class GuiStudent {
 
     private String firstName;
     private String lastName;
 
-    public void setNames(String firstName, String lastname){
+    public void setNames(String firstName, String lastname) {
         this.firstName = firstName;
         this.lastName = lastname;
     }
 
-    ICrudRepository<Student> studentJdbcRepo = new StudentJdbcRepository();
-    ICrudRepository<Teacher> teacherJdbcRepo = new TeacherJdbcRepository();
-    ICrudRepository<Course> courseJdbcRepo = new CourseJdbcRepository();
+    ICrudRepository<Student> studentJdbcRepo;
+    ICrudRepository<Teacher> teacherJdbcRepo;
+    ICrudRepository<Course> courseJdbcRepo;
 
-    IJoinTablesRepo enrolledJdbcRepo = new EnrolledJdbcRepository(studentJdbcRepo, courseJdbcRepo, teacherJdbcRepo);
-    private StudentController studentController = new StudentController(studentJdbcRepo, courseJdbcRepo, enrolledJdbcRepo);
-    private CourseController courseController = new CourseController(courseJdbcRepo, teacherJdbcRepo, enrolledJdbcRepo);
+    IJoinTablesRepo enrolledJdbcRepo;
+    private StudentController studentController;
+    private CourseController courseController;
 
 
     VBox mainLayout;
@@ -48,30 +45,20 @@ public class GuiStudent extends Application {
     TextField courseNameInput;
 
 
-    /*public GuiStudent(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        listView = new ListView<>();
+    public Parent initialize() {
+        studentJdbcRepo = new StudentJdbcRepository();
+        teacherJdbcRepo = new TeacherJdbcRepository();
+        courseJdbcRepo = new CourseJdbcRepository();
 
-        ICrudRepository<Student> studentJdbcRepo = new StudentJdbcRepository();
-        ICrudRepository<Teacher> teacherJdbcRepo = new TeacherJdbcRepository();
-        ICrudRepository<Course> courseJdbcRepo = new CourseJdbcRepository();
+        enrolledJdbcRepo = new EnrolledJdbcRepository(studentJdbcRepo, courseJdbcRepo, teacherJdbcRepo);
+        studentController = new StudentController(studentJdbcRepo, courseJdbcRepo, enrolledJdbcRepo);
+        courseController = new CourseController(courseJdbcRepo, teacherJdbcRepo, enrolledJdbcRepo);
 
-        IJoinTablesRepo enrolledJdbcRepo = new EnrolledJdbcRepository(studentJdbcRepo, courseJdbcRepo, teacherJdbcRepo);
-        this.studentController = new StudentController(studentJdbcRepo, courseJdbcRepo, enrolledJdbcRepo);
-    }*/
 
-    public void launchGuiStudent(String[] args) {
-        launch(args);
-    }
-
-    public Parent initialize(){
         listView = new ListView<>();
         listView.setPrefWidth(530);
 
-
-        // Create VBox        // Create window
-        //        primaryStage.setTitle("Student Menu");
+        // Create VBox
         mainLayout = new VBox();
         mainLayout.setPrefWidth(300);
         mainLayout.setSpacing(70);
@@ -135,25 +122,17 @@ public class GuiStudent extends Application {
         labels.setAlignment(Pos.CENTER);
         mainLayout.setAlignment(Pos.CENTER);
 
-        // Show window
         mainLayout.getChildren().addAll(hBoxButtons, labels, hBoxListView);
         return mainLayout;
     }
 
-    @Override
-    public void start(Stage primaryStage) {
-        initialize();
-        Scene scene = new Scene(mainLayout, 672, 672);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
 
     private void buttonCreditsClicked() {
         listView.getItems().clear();
         courseNameInput.clear();
         try {
             Integer credits = studentController.getTotalCreditsOfStudent(firstName, lastName);
-            listView.getItems().add(String.valueOf(credits));
+            listView.getItems().add("Your total credits: " + credits);
 
         } catch (SQLException | IOException | ClassNotFoundException e) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -166,9 +145,6 @@ public class GuiStudent extends Application {
     }
 
     private void buttonRegisterClicked() throws Exception {
-        System.out.println(this.firstName);
-        System.out.println(this.lastName);
-/*
         try {
             Long courseId = courseController.searchCourse(courseNameInput.getText());
             Long studentId = studentController.searchPerson(firstName, lastName);
@@ -193,6 +169,5 @@ public class GuiStudent extends Application {
             alert.showAndWait();
             courseNameInput.clear();
         }
-*/
     }
 }

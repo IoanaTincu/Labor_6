@@ -5,15 +5,13 @@ import controller.StudentController;
 import controller.TeacherController;
 import exceptions.InvalidCourseException;
 import exceptions.NullValueException;
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import model.Course;
 import model.Student;
 import model.Teacher;
@@ -24,19 +22,25 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-public class GuiTeacher extends Application {
+public class GuiTeacher {
 
-    private String firstName = "Luca";
-    private String lastName = "Tompea";
+    private String firstName;
+    private String lastName;
 
-    ICrudRepository<Student> studentJdbcRepo = new StudentJdbcRepository();
-    ICrudRepository<Teacher> teacherJdbcRepo = new TeacherJdbcRepository();
-    ICrudRepository<Course> courseJdbcRepo = new CourseJdbcRepository();
+    public void setNames(String firstName, String lastname) {
+        this.firstName = firstName;
+        this.lastName = lastname;
+    }
 
-    IJoinTablesRepo enrolledJdbcRepo = new EnrolledJdbcRepository(studentJdbcRepo, courseJdbcRepo, teacherJdbcRepo);
-    private CourseController courseController = new CourseController(courseJdbcRepo, teacherJdbcRepo, enrolledJdbcRepo);
-    private StudentController studentController = new StudentController(studentJdbcRepo, courseJdbcRepo, enrolledJdbcRepo);
-    private TeacherController teacherController = new TeacherController(teacherJdbcRepo, enrolledJdbcRepo);
+
+    ICrudRepository<Student> studentJdbcRepo;
+    ICrudRepository<Teacher> teacherJdbcRepo;
+    ICrudRepository<Course> courseJdbcRepo;
+
+    IJoinTablesRepo enrolledJdbcRepo;
+    private CourseController courseController;
+    private StudentController studentController;
+    private TeacherController teacherController;
 
 
     VBox mainLayout;
@@ -48,28 +52,19 @@ public class GuiTeacher extends Application {
     TextField courseNameInput;
 
 
-    /*public GuiTeacher() {
-        ICrudRepository<Student> studentJdbcRepo = new StudentJdbcRepository();
-        ICrudRepository<Teacher> teacherJdbcRepo = new TeacherJdbcRepository();
-        ICrudRepository<Course> courseJdbcRepo = new CourseJdbcRepository();
+    public Parent initialize() {
+        studentJdbcRepo = new StudentJdbcRepository();
+        teacherJdbcRepo = new TeacherJdbcRepository();
+        courseJdbcRepo = new CourseJdbcRepository();
 
-        IJoinTablesRepo enrolledJdbcRepo = new EnrolledJdbcRepository(studentJdbcRepo, courseJdbcRepo, teacherJdbcRepo);
-        this.courseController = new CourseController(courseJdbcRepo, teacherJdbcRepo, enrolledJdbcRepo);
-        this.studentController = new StudentController(studentJdbcRepo, courseJdbcRepo, enrolledJdbcRepo);
-    }*/
+        enrolledJdbcRepo = new EnrolledJdbcRepository(studentJdbcRepo, courseJdbcRepo, teacherJdbcRepo);
+        courseController = new CourseController(courseJdbcRepo, teacherJdbcRepo, enrolledJdbcRepo);
+        studentController = new StudentController(studentJdbcRepo, courseJdbcRepo, enrolledJdbcRepo);
+        teacherController = new TeacherController(teacherJdbcRepo, enrolledJdbcRepo);
 
 
-    public void launchGuiTeacher(String[] args) {
-        launch(args);
-    }
-
-    @Override
-    public void start(Stage primaryStage) {
         listView = new ListView<>();
         listView.setPrefWidth(530);
-
-        // Create window
-        primaryStage.setTitle("Teacher Menu");
 
         // Create VBox
         mainLayout = new VBox();
@@ -124,12 +119,10 @@ public class GuiTeacher extends Application {
         labels.setAlignment(Pos.CENTER);
         mainLayout.setAlignment(Pos.CENTER);
 
-        // Show window
         mainLayout.getChildren().addAll(hBoxButtons, labels, hBoxListView);
-        Scene scene = new Scene(mainLayout, 672, 672);
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        return mainLayout;
     }
+
 
     private void buttonShowStudentsClicked() {
         try {
