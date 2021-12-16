@@ -226,4 +226,36 @@ public class EnrolledJdbcRepository implements IJoinTablesRepo {
         statement.close();
         teacherJdbcRepo.closeConnection(connection);
     }
+
+    public boolean verifyTeacherTeachesCourse(Long teacherId, Long courseId) throws SQLException, IOException, ClassNotFoundException, NullValueException, InvalidCourseException {
+        if (teacherId == null || courseId == null)
+            throw new NullValueException("Invalid parameter!");
+
+        String sqlQuery = "SELECT teacherId FROM courses WHERE id=?";
+        Connection connection = teacherJdbcRepo.openConnection();
+
+        PreparedStatement statement = connection.prepareStatement(sqlQuery);
+        statement.setLong(1, courseId);
+        ResultSet resultSet = statement.executeQuery();
+
+        if (!resultSet.next()) {
+            statement.close();
+            resultSet.close();
+            teacherJdbcRepo.closeConnection(connection);
+            throw new InvalidCourseException("Course does not exist in the database!");
+        }
+
+        if (resultSet.getLong("teacherId") == teacherId) {
+            statement.close();
+            resultSet.close();
+            teacherJdbcRepo.closeConnection(connection);
+            return true;
+        }
+
+        statement.close();
+        resultSet.close();
+        teacherJdbcRepo.closeConnection(connection);
+        return false;
+    }
+
 }

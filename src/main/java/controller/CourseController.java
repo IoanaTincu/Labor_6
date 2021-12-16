@@ -144,7 +144,12 @@ public class CourseController {
         enrolledJdbcRepo.registerTeacherToCourse(teacherId, courseId);
     }
 
-    public Long searchCourse(String courseName) throws SQLException, IOException, ClassNotFoundException {
-        return courseJdbcRepo.searchCourse(courseName);
+    public Long searchCourse(String courseName) throws SQLException, IOException, ClassNotFoundException, InvalidCourseException {
+        Long id = courseJdbcRepo.searchCourse(courseName);
+
+        if (id == null)
+            throw new InvalidCourseException("The course doesn't exist in the database!");
+
+        return id;
     }
 }

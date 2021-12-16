@@ -73,4 +73,5 @@ public interface ICrudRepository<T> {
     Integer getTotalCreditsOfStudent(String firstName, String lastName) throws SQLException, IOException, ClassNotFoundException;
 
     Long searchCourse(String courseName) throws SQLException, IOException, ClassNotFoundException;
+
 }

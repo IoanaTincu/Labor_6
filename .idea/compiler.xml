@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Labor5_MAP" />
         <module name="Labor6_MAP" />
+        <module name="Labor_6" />
       </profile>
     </annotationProcessing>
   </component>

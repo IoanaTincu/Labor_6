@@ -1,5 +1,6 @@
 package controller;
 
+import exceptions.InvalidCourseException;
 import exceptions.NullValueException;
 import model.Teacher;
 import repository.*;
@@ -73,5 +74,9 @@ public class TeacherController {
 
     public Long searchPerson(String firstName, String lastName) throws SQLException, IOException, ClassNotFoundException {
         return teacherJdbcRepo.searchPerson(firstName, lastName);
+    }
+
+    public boolean verifyTeacherTeachesCourse(Long teacherId, Long courseId) throws SQLException, IOException, ClassNotFoundException, NullValueException, InvalidCourseException {
+        return enrolledJdbcRepo.verifyTeacherTeachesCourse(teacherId, courseId);
     }
 }

@@ -2,10 +2,12 @@ package com.company;
 
 import controller.CourseController;
 import controller.StudentController;
+import controller.TeacherController;
+import exceptions.InvalidCourseException;
+import exceptions.NullValueException;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -19,59 +21,57 @@ import repository.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
-public class GuiStudent extends Application {
 
-    private String firstName;
-    private String lastName;
+public class GuiTeacher extends Application {
 
-    public void setNames(String firstName, String lastname){
-        this.firstName = firstName;
-        this.lastName = lastname;
-    }
+    private String firstName = "Luca";
+    private String lastName = "Tompea";
 
     ICrudRepository<Student> studentJdbcRepo = new StudentJdbcRepository();
     ICrudRepository<Teacher> teacherJdbcRepo = new TeacherJdbcRepository();
     ICrudRepository<Course> courseJdbcRepo = new CourseJdbcRepository();
 
     IJoinTablesRepo enrolledJdbcRepo = new EnrolledJdbcRepository(studentJdbcRepo, courseJdbcRepo, teacherJdbcRepo);
-    private StudentController studentController = new StudentController(studentJdbcRepo, courseJdbcRepo, enrolledJdbcRepo);
     private CourseController courseController = new CourseController(courseJdbcRepo, teacherJdbcRepo, enrolledJdbcRepo);
+    private StudentController studentController = new StudentController(studentJdbcRepo, courseJdbcRepo, enrolledJdbcRepo);
+    private TeacherController teacherController = new TeacherController(teacherJdbcRepo, enrolledJdbcRepo);
 
 
     VBox mainLayout;
     HBox hBoxButtons, hBoxListView;
-    Button buttonCredits, buttonRegister;
+    Button buttonShowStudents, buttonRefresh;
     ListView<String> listView;
     GridPane labels;
     Label labelCourseName;
     TextField courseNameInput;
 
 
-    /*public GuiStudent(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        listView = new ListView<>();
-
+    /*public GuiTeacher() {
         ICrudRepository<Student> studentJdbcRepo = new StudentJdbcRepository();
         ICrudRepository<Teacher> teacherJdbcRepo = new TeacherJdbcRepository();
         ICrudRepository<Course> courseJdbcRepo = new CourseJdbcRepository();
 
         IJoinTablesRepo enrolledJdbcRepo = new EnrolledJdbcRepository(studentJdbcRepo, courseJdbcRepo, teacherJdbcRepo);
+        this.courseController = new CourseController(courseJdbcRepo, teacherJdbcRepo, enrolledJdbcRepo);
         this.studentController = new StudentController(studentJdbcRepo, courseJdbcRepo, enrolledJdbcRepo);
     }*/
 
-    public void launchGuiStudent(String[] args) {
+
+    public void launchGuiTeacher(String[] args) {
         launch(args);
     }
 
-    public Parent initialize(){
+    @Override
+    public void start(Stage primaryStage) {
         listView = new ListView<>();
         listView.setPrefWidth(530);
 
+        // Create window
+        primaryStage.setTitle("Teacher Menu");
 
-        // Create VBox        // Create window
-        //        primaryStage.setTitle("Student Menu");
+        // Create VBox
         mainLayout = new VBox();
         mainLayout.setPrefWidth(300);
         mainLayout.setSpacing(70);
@@ -90,24 +90,13 @@ public class GuiStudent extends Application {
         hBoxListView.setPadding(new Insets(0, 0, 0, 0));
 
         // Create buttons
-        buttonCredits = new Button();
-        buttonCredits.setText("See your total credits");
-        buttonCredits.setOnAction(e -> buttonCreditsClicked()); // Connect to action
+        buttonShowStudents = new Button();
+        buttonShowStudents.setText("See students enrolled");
+        buttonShowStudents.setOnAction(e -> buttonShowStudentsClicked()); // Connect to action
 
-        buttonRegister = new Button();
-        buttonRegister.setText("Register for course");
-        buttonRegister.setOnAction(e -> {
-            try {
-                buttonRegisterClicked();
-            } catch (Exception ex) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-
-                alert.setTitle("Message");
-                alert.setHeaderText("");
-                alert.setContentText(ex.toString());
-                alert.showAndWait();
-            }
-        });
+        buttonRefresh = new Button();
+        buttonRefresh.setText("Refresh");
+        buttonRefresh.setOnAction(e -> buttonShowStudentsClicked());
 
         // Create GridPane for labels
         labels = new GridPane();
@@ -122,7 +111,7 @@ public class GuiStudent extends Application {
 
         // Add elements to GUI
         hBoxListView.getChildren().add(listView);
-        hBoxButtons.getChildren().addAll(buttonRegister, buttonCredits);
+        hBoxButtons.getChildren().addAll(buttonShowStudents, buttonRefresh);
         labels.add(labelCourseName, 0, 0);
         labels.add(courseNameInput, 1, 0);
 
@@ -137,54 +126,32 @@ public class GuiStudent extends Application {
 
         // Show window
         mainLayout.getChildren().addAll(hBoxButtons, labels, hBoxListView);
-        return mainLayout;
-    }
-
-    @Override
-    public void start(Stage primaryStage) {
-        initialize();
         Scene scene = new Scene(mainLayout, 672, 672);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    private void buttonCreditsClicked() {
-        listView.getItems().clear();
-        courseNameInput.clear();
+    private void buttonShowStudentsClicked() {
         try {
-            Integer credits = studentController.getTotalCreditsOfStudent(firstName, lastName);
-            listView.getItems().add(String.valueOf(credits));
-
-        } catch (SQLException | IOException | ClassNotFoundException e) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-
-            alert.setTitle("Message");
-            alert.setHeaderText("");
-            alert.setContentText(e.toString());
-            alert.showAndWait();
-        }
-    }
-
-    private void buttonRegisterClicked() throws Exception {
-        System.out.println(this.firstName);
-        System.out.println(this.lastName);
-/*
-        try {
-            Long courseId = courseController.searchCourse(courseNameInput.getText());
-            Long studentId = studentController.searchPerson(firstName, lastName);
-            studentController.registerStudentToCourse(studentId, courseId);
-
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-
-            alert.setTitle("Message");
-            alert.setHeaderText("");
-            alert.setContentText("You have been registered!");
-            alert.showAndWait();
-
-            courseNameInput.clear();
             listView.getItems().clear();
+            Long courseId = courseController.searchCourse(courseNameInput.getText());
+            Long teacherId = teacherController.searchPerson(firstName, lastName);
 
-        } catch (SQLException | IOException | ClassNotFoundException e) {
+            if (!teacherController.verifyTeacherTeachesCourse(teacherId, courseId))
+                throw new InvalidCourseException("Invalid course!");
+
+            Course course = new Course(courseId, courseNameInput.getText(), -1, -1, -1);
+            List<Long> studentIds = courseController.getStudentsEnrolledInCourse(course);
+
+            if (studentIds.size() == 0)
+                listView.getItems().add("No students enrolled!");
+            else
+                for (Long id : studentIds)
+                    listView.getItems().add(studentController.findOne(id).toString());
+
+            courseNameInput.clear();
+
+        } catch (SQLException | IOException | ClassNotFoundException | NullValueException | InvalidCourseException e) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
             alert.setTitle("Message");
@@ -193,6 +160,6 @@ public class GuiStudent extends Application {
             alert.showAndWait();
             courseNameInput.clear();
         }
-*/
+
     }
 }

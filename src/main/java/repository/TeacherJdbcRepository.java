@@ -1,5 +1,6 @@
 package repository;
 
+import exceptions.InvalidCourseException;
 import exceptions.NullValueException;
 import model.Teacher;
 

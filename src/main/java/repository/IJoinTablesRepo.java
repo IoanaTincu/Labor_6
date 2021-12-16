@@ -122,4 +122,6 @@ public interface IJoinTablesRepo {
      * @throws ClassNotFoundException (forName) if the class cannot be located
      */
     void deleteTeacherFromCourse(Long teacherId) throws SQLException, IOException, ClassNotFoundException;
+
+    boolean verifyTeacherTeachesCourse(Long teacherId, Long courseId) throws SQLException, IOException, ClassNotFoundException, NullValueException, InvalidCourseException;
 }

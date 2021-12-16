@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -31,6 +32,10 @@ public class GuiLogIn extends Application implements EventHandler<ActionEvent> {
     Label labelFirstName, labelLastName;
     TextField firstNameInput, lastNameInput;
 
+    Parent mainParent;
+    public void setParent(Parent p){
+        this.mainParent = p;
+    }
     private final StudentController studentController;
     private final TeacherController teacherController;
 
@@ -155,6 +160,12 @@ public class GuiLogIn extends Application implements EventHandler<ActionEvent> {
                     alert.showAndWait();
                 } else {
                     System.out.println("You exist!");
+                    GuiStudent guiStudent = new GuiStudent();
+                    Parent parent = guiStudent.initialize();
+                    guiStudent.setNames(firstName, lastName);
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(parent, 672, 672));
+                    stage.show();
                 }
             }
             else {
